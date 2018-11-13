@@ -2,11 +2,7 @@
 title: "DS 202 - Data Exploration"
 author: "Collin Loy, Michelle Cryder"
 ratio: 16x10
-output:
-  rmdshower::shower_presentation:
-    self_contained: false
-    katex: true
-    theme: ribbon
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -28,8 +24,8 @@ library(lubridate)
 - see whether expectations match
 
 ```{r}
-athletes = read_csv("athlete_events.csv")
-regions = read_csv("noc_regions.csv")
+athletes = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/athlete_events.csv")
+regions = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/noc_regions.csv")
 
 str(athletes)
 
