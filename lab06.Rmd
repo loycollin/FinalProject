@@ -86,7 +86,7 @@ In Canvas, submit an RMarkdown file (and the knitted html document) with:
       + Collin Loy and Michelle Cryder
       
   b. an overview of the data set you are working with for the final project
-      + The dataset includes the names and characterics of olympic athletes from 1896-2016. Variables include personal statistics, (such as age, gender, height, and weight of each athlete), along with the sport, country, and medals received. There is another dataset that provides the National Olympic Committee code (NOC) and the corresponding geographical region.   
+      + The dataset includes the names and characterics of olympic athletes from 1896-2016. Variables include personal statistics, (such as age, gender, height, and weight of each athlete), along with the sport, country, and medals received. There is another dataset that provides the National Olympic Committee code (NOC) and the corresponding geographical region. Source information about the dataset: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
     
   c. a discussion of cleaning steps that are necessary to get the data into the right shape
       + We will need to convert some of the variables to factors, and change the Year variable to time. We can also join the regions to the athletes table. 
