@@ -1,6 +1,6 @@
 ---
 title: "FinalProject_Start"
-author: "Michelle Cryder"
+author: "Michelle Cryder, Collin Loy"
 date: "November 28, 2018"
 output: html_document
 ---
