@@ -1,0 +1,97 @@
+---
+title: "FinalProject_Start"
+author: "Michelle Cryder"
+date: "November 28, 2018"
+output: html_document
+---
+
+# Introduction
+  * This dataset includes the names and characterics of olympic athletes from 1896-2016. Variables include personal statistics, (such as age, gender, height, and weight of each athlete), along with the sport, country, and medals received. There is another dataset that provides the National Olympic Committee code (NOC) and the corresponding geographical region. Source information about the dataset: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
+ 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(lubridate)
+
+athletes = read_csv("athlete_events.csv")     #import athlete data 
+regions = read_csv("noc_regions.csv")         #import region data
+
+olympics = left_join(athletes, regions, by = "NOC")   #join athletes and region data by NOC 
+```
+
+# Data Exploration 
+
+```{r}
+str(olympics)
+
+summary(olympics)
+
+# Summarize Gender:
+olympics %>% group_by(region, Sex) %>% count() 
+olympics %>% ggplot(aes(x = Sex, fill = Sex)) + geom_bar()
+
+# Summarize Age: 
+olympics %>% ggplot(aes(x = Age)) + geom_bar()
+olympics %>% group_by(region) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) 
+olympics %>% group_by(region) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(mean_age)) + geom_histogram(binwidth = 0.25)
+
+# Summarize Height: 
+olympics %>% ggplot(aes(x = Height)) + geom_bar()
+olympics %>% group_by(region) %>% summarise(mean_height = mean(Height, na.rm=TRUE))
+
+# Summarize Weight: 
+olympics %>% ggplot(aes(Weight)) + geom_histogram()
+olympics %>% group_by(region) %>% summarise(mean_weight = mean(Weight, na.rm=TRUE))
+
+# Summarize Regions: 
+olympics %>% group_by(region) %>% count() 
+names = olympics %>% group_by(Name) %>% select(Name, region) 
+
+# Summarize medals: 
+olympics %>% group_by(region, Medal) %>% count() %>% ggplot(aes(n)) + geom_histogram()
+
+```                                                                                   
+                                                                                           
+                                                                                           
+# Expanding complexity
+
+```{r}
+###  Investigate two-way relationships 
+  
+# Scatterplots for two numeric variables: numeric vs numeric
+
+    # Athlete Height vs Weight 
+olympics %>% ggplot(aes(x = Height, y = Weight)) + geom_jitter(colour = "navy", size = 0.5)
+
+    # Athlete Age vs Height 
+olympics %>% ggplot(aes(x = Age, y = Height)) + geom_jitter(colour = "red", size = 0.1)
+
+    # Athlete Avg vs Weight
+olympics %>% ggplot(aes(x = Age, y = Weight)) + geom_jitter(colour = "red", size = 0.1)
+
+# Side-by-side boxplots or facetted polots for numeric/categorical pair: numeric vs. categorical 
+
+    # Female vs Male athletes by year for summer olympics 
+olympics %>% filter(Season == "Summer") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line()
+
+    # Female vs Male athletes by year for winter olympics
+olympics %>% filter(Season == "Winter") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line()
+
+    # Age vs number of medals 
+medals = olympics %>% filter(Medal == c("Gold", "Silver", "Bronze"))
+medals_age = medals %>% group_by(Age, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n)
+
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, colour = Medal)) + geom_point() + scale_color_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
+
+    # Number of medals per country
+medals_country = medals %>% group_by(region, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
+
+medals_country %>%  filter(region %in% c("USA", "Russia", "Germany", "UK", "France")) %>% ggplot(aes(x = region, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
+```
+
+
+
+
+
