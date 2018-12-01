@@ -65,7 +65,7 @@ olympics %>% group_by(region, Medal) %>% count() %>% ggplot(aes(n)) + geom_histo
 olympics %>% ggplot(aes(x = Height, y = Weight)) + geom_jitter(colour = "navy", size = 0.5) + ylab("Weight (kg)")
 
     # Athlete Age vs Height 
-olympics %>% ggplot(aes(x = Age, y = Height)) + geom_jitter(colour = "red", size = 0.1) + ylab
+olympics %>% ggplot(aes(x = Age, y = Height)) + geom_jitter(colour = "red", size = 0.1) + ylab("Height (cm)")
 
     # Athlete Avg vs Weight
 olympics %>% ggplot(aes(x = Age, y = Weight)) + geom_jitter(colour = "red", size = 0.1) + ylab("Weight (kg)")
