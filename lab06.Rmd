@@ -82,16 +82,50 @@ olympics %>% filter(Season == "Winter") %>%  group_by(Year, Sex) %>% count() %>%
 medals = olympics %>% filter(Medal == c("Gold", "Silver", "Bronze"))
 medals_age = medals %>% group_by(Age, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n)
 
-medals_age %>% ggplot(aes(x = Age, y = Num_Medals, colour = Medal)) + geom_point() + scale_color_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
-medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, colour = Medal)) + geom_point() + scale_color_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Number of Medals")
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Number of Medals")
 
     # Number of medals per country
 medals_country = medals %>% group_by(region, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
-
-medals_country %>%  filter(region %in% c("USA", "Russia", "Germany", "UK", "France")) %>% ggplot(aes(x = region, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
+```
+```{r echo = FALSE, fig.width=16, fig.height=15}
+    # All Regions
+na.omit(medals_country) %>% ggplot(aes(reorder(region, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Number of Medals")
 ```
 
+# A closer look at the top 5
 
+```{r}
+### Investigating Medals and Games
+    
+    # Top 5 Countries
+medals_country %>%  filter(region %in% c("USA", "Russia", "Germany", "UK", "France")) %>% ggplot(aes(x = region, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab"))
+    
+    # Region Medals per Event
+event_medals = medals %>% group_by(region, Event, Sex, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
 
+#USA
 
+    # Top Ten Gold Medal Events US
+event_medals %>% filter(region %in% c("USA"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + coord_flip() + ylab("Number of Medals")
 
+# Russia
+
+    # Top Ten Gold Medal Events Russia
+   event_medals %>% filter(region %in% c("Russia"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + coord_flip() + ylab("Number of Medals")
+
+# Germany
+    #Top Ten Gold Medal Events Germany
+event_medals %>% filter(region %in% c("Germany"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + coord_flip() + ylab("Number of Medals")
+
+# UK
+
+    # Top Ten Gold Medal Events UK
+event_medals %>% filter(region %in% c("UK"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + coord_flip() + ylab("Number of Medals") + scale_fill_manual(values=c("#00bfc4"))
+
+# France
+    
+    # Top Ten Gold Medal Events France
+event_medals %>% filter(region %in% c("France"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + coord_flip() + ylab("Number of Medals") + scale_fill_manual(values=c("#00bfc4"))
+
+```
