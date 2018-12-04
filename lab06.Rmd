@@ -147,6 +147,17 @@ na.omit(medals_country) %>% ggplot(aes(reorder(region, Num_Medals), y = Num_Meda
     # Top 5 Countries
 medals_country$region = factor(medals_country$region, levels = levels(reorder(medals_country$region, medals_country$Num_Medals, sum, na.rm=TRUE)))
 medals_country %>%  filter(region %in% c("USA", "Russia", "Germany", "UK", "France")) %>% ggplot(aes(x = region, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + xlab("") + ggtitle("Medal Count: Top 5 Countries")
+
+    # Top 5 Countries Over Time
+medals_top5_year = medals %>% filter(Season == "Summer") %>% group_by(Year, region) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(Year)
+medals_top5_year = medals_top5_year %>% filter(region %in% c("USA", "Russia", "Germany", "UK", "France"))
+
+        ## Line Graph
+medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time (Trendline)") + geom_line()
+
+        ## Trendline Graph
+medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time (Trendline)") + geom_smooth()
+```
     
     # Region Medals per Event
 event_medals = medals %>% group_by(region, Event, Sex, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
