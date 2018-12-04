@@ -249,17 +249,15 @@ grid.newpage()
     
   
 ## **Russia: Athletes with the Most Gold Medals**
-+ Male: Michael Fred Phelps II with 10 Medals Total
-    + Comparing Gold medals With top ten Gold Medal country events.
-    + Swimming 4 x 200 metres Freestyle Relay: 2 Gold Medals
-    + Swimming 4 x 100 metres Freestyle Relay: 1 Gold Medal
-+ Female: Jennifer Elisabeth "Jenny" Thompson with 7 Medals Total
-    + Her name also appears in the top  Silver Medals graph of US athletes
-    + Comparing Gold medals with top ten Gold Medal country events.
-        + Swimming 4 x 100 metres Freestyle Relay: 2 Gold
-        + Swimming 4 x 100 metres Medley Relay: 1 Gold
-        + Swimming Women's 4 x 200 metres Freestyle Relay: 1 Gold
-
+## **Russia: Athletes with the Most Gold Medals**
++ Male: Nikolay Yefimovich Andrianov with 8 Medals Total
+  + His name also appears in the top  Silver Medals graph of Russian athletes
+  + Comparing Gold medals With top ten Gold Medal country events.
+    + Gymnastics Team All-Around: 2 Gold
++ Female: Polina Hryhorivna Astakhova with 8 Medals Total
+  + Her name also appears in the top  Silver Medals graph of Russian athletes
+  + Comparing Gold medals with top ten Gold Medal country events.
+    + Gymnastics Team All-Around: 2 Gold
 
 ## **Russia: Top 10 Medal Events (Mens)**
 ```{r echo=FALSE, message=FALSE, warning=FALSE}    
