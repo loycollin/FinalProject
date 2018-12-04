@@ -204,7 +204,7 @@ grid.newpage()
 
 ```
 
-## Atheletes
+## Athletes
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 athlete_M_count = medals %>% group_by(region,Name, Sex, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals))
@@ -213,7 +213,7 @@ US_athletesG = athlete_M_count %>% filter(region %in% c("USA"), Medal == "Gold")
 US_athletesG = ggplotGrob(US_athletesG)
 
 # Silver has a 16 way tie
-US_athletesS = athlete_M_count %>% filter(region %in% c("USA"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(16) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("USA athlete Medal Count")
+US_athletesS = athlete_M_count %>% filter(region %in% c("USA"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(16) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("USA Athlete Medal Count")
 US_athletesS = ggplotGrob(US_athletesS)
 
 # bronze has a 10 way tie
@@ -299,13 +299,13 @@ grid.newpage()
 
 ```
 
-## Atheletes
+## Athletes
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 RU_athletesG = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
 RU_athletesG = ggplotGrob(RU_athletesG)
 
-RU_athletesS = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("Russia athlete Medal Count")
+RU_athletesS = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("Russia Athlete Medal Count")
 RU_athletesS = ggplotGrob(RU_athletesS)
 
 RU_athletesB = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
@@ -321,13 +321,13 @@ grid.newpage()
 ## A closer look at the top 5
 ### **Germany**  
 + Male
-  + Best Gold Medal Event: Hockey
-  + Best Silver Medal Event: Hockey
-  + Best Bronze Medal Event: Hockey
+    + Best Gold Medal Event: Hockey
+    + Best Silver Medal Event: Hockey
+    + Best Bronze Medal Event: Hockey
 + Female
-  + Best Gold Medal Event: Rowing Coxed Eights
-  + Best Silver Medal Event: Hockey
-  + Best Bronze Medal Event: Football
+    + Best Gold Medal Event: Rowing Coxed Eights
+    + Best Silver Medal Event: Hockey
+    + Best Bronze Medal Event: Football
     
   
 ## **Germany: Athletes with the Most Gold Medals**
@@ -386,13 +386,13 @@ grid.newpage()
 
 ```
 
-## Atheletes
+## Athletes
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 GE_athletesG = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
 GE_athletesG = ggplotGrob(GE_athletesG)
 
-GE_athletesS = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("Germany athlete Medal Count")
+GE_athletesS = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("Germany Athlete Medal Count")
 GE_athletesS = ggplotGrob(GE_athletesS)
 
 GE_athletesB = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
@@ -471,14 +471,14 @@ grid.newpage()
 
 ```
 
-## Atheletes
+## Athletes
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
     # athletes with the Most medals
 UK_athletesG = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
 UK_athletesG = ggplotGrob(UK_athletesG)
 
-UK_athletesS = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("UK athlete Medal Count")
+UK_athletesS = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("UK Athlete Medal Count")
 UK_athletesS = ggplotGrob(UK_athletesS)
 
 UK_athletesB = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
@@ -494,13 +494,13 @@ grid.newpage()
 ## A closer look at the top 5
 ### **France**  
 + Male
-  + Best Gold Medal Event: 
-  + Best Silver Medal Event: Rugby
-  + Best Bronze Medal Event: Gymnastics Team All-Around
+    + Best Gold Medal Event: 
+    + Best Silver Medal Event: Rugby
+    + Best Bronze Medal Event: Gymnastics Team All-Around
 + Female
-  + Best Gold Medal Event: 16 way tie between different events.
-  + Best Silver Medal Event: Basketball
-  + Best Bronze Medal Event: Three way tie between swimming 4 x 200 Freestyle Relay, Fencing Epee Team, and Biathalon 4x6 Kilometer Relay
+    + Best Gold Medal Event: 16 way tie between different events.
+    + Best Silver Medal Event: Basketball
+    + Best Bronze Medal Event: Three way tie between swimming 4 x 200 Freestyle Relay, Fencing Epee Team, and Biathalon 4x6 Kilometer Relay
     
   
 ## **France: Athletes with the Most Gold Medals**
@@ -554,14 +554,14 @@ grid.newpage()
 
 ```
 
-## Atheletes
+## Athletes 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
     # athletes with the Most medals
 FR_athletesG = athlete_M_count %>% filter(region %in% c("France"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ") + scale_fill_manual(values = c("#00BFC4", "red"))
 FR_athletesG = ggplotGrob(FR_athletesG)
 
-FR_athletesS = athlete_M_count %>% filter(region %in% c("France"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("France athlete Medal Count")
+FR_athletesS = athlete_M_count %>% filter(region %in% c("France"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("France Athlete Medal Count")
 FR_athletesS = ggplotGrob(FR_athletesS)
 
 FR_athletesB = athlete_M_count %>% filter(region %in% c("France"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
