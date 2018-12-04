@@ -1,0 +1,100 @@
+---
+title: "Final Project: Olympics"
+author: Collin Loy, Michelle Cryder
+ratio: 16x10
+output:
+  rmdshower::shower_presentation:
+    self_contained: false
+    katex: true
+    theme: ribbon
+---
+
+## The Olympics
+<center>  
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Olympic_rings_without_rims.svg/300px-Olympic_rings_without_rims.svg.png)  
+</center>
+
+
+  - This dataset includes the names and characterics of olympic athletes from 1896-2016. 
+  - Source information about the dataset: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
+
+
+## Data Exploration: Age
++ Largest Group: 23 | Youngest: 10 | Oldest: 97
+```{r echo=FALSE, message=FALSE}
+library(tidyverse)
+library(lubridate)
+library(gtable)
+library(grid)
+
+athletes = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/athlete_events.csv")     #import athlete data 
+regions = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/noc_regions.csv")         #import region data
+olympics = left_join(athletes, regions, by = "NOC")                                                           #join athletes and region data by NOC 
+
+olympics %>% group_by(region) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(mean_age)) + geom_histogram(binwidth = 0.25, fill = "navy") + xlab("Age") + ylab("Count") + ggtitle("Mean Olympic Athlete Age")
+```
+
+## Data Exploration: Height 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+olympics %>% ggplot(aes(x = Height)) + geom_bar(fill = "navy") + xlab("Height (cm)") + ylab("Count") + ggtitle("Mean Olympic Athlete Height")
+```
+
+## Data Exploration: Weight
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+olympics %>% ggplot(aes(Weight)) + geom_histogram(fill = "navy") + xlab("Weight (kg)") + ylab("Count") + ggtitle("Mean Olympic Athlete Weight")
+```
+
+## Age vs Medals 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+medals = olympics %>% filter(Medal == c("Gold", "Silver", "Bronze"))
+medals_age = medals %>% group_by(Age, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n)
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + ggtitle("Medal Count by Age")
+```
+
+## Men and Women: Summer Olympics
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+olympics %>% filter(Season == "Summer") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Summer Olympics") + ylab("Count")
+```
+
+## Medal Count: Top 5 Countries
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+medals_country = medals %>% group_by(region, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
+medals_country$region = factor(medals_country$region, levels = levels(reorder(medals_country$region, medals_country$Num_Medals, sum, na.rm=TRUE)))
+medals_country %>%  filter(region %in% c("USA", "Russia", "Germany", "UK", "France")) %>% ggplot(aes(x = region, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + xlab("") + ggtitle("Medal Count: Top 5 Countries")
+```
+
+## Medal Count: Top 5 Countries Over Time
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+medals_top5_year = medals %>% filter(Season == "Summer") %>% group_by(Year, region) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(Year)
+medals_top5_year = medals_top5_year %>% filter(region %in% c("USA", "Russia", "Germany", "UK", "France"))
+medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time") + geom_line()
+```
+
+
+## Gold Medals
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(maps)
+
+world <- map_data("world")
+
+medals.gold = medals_country %>% filter(Medal %in% "Gold")
+map.gold = medals.gold %>% left_join(world, by = "region")
+map.gold %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + scale_fill_gradient(low = "#f9f383", high = "#e1d607", name = "Medal Count") + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Gold Medals")
+```
+
+## Silver Medals
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+medals.silver = medals_country %>% filter(Medal %in% "Silver")
+map.silver = medals.silver %>% left_join(world, by = "region")
+map.silver %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + scale_fill_gradient(low = "#e6e6e6", high = "#7a7a7a", name = "Medal Count") + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Silver Medals")
+```
+
+## Bronze Medals
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+medals.bronze = medals_country %>% filter(Medal %in% "Bronze")
+map.bronze = medals.bronze %>% left_join(world, by = "region")
+map.bronze %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + scale_fill_gradient(low = "#e3af78", high = "#90591d", name = "Medal Count") + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Bronze Medals")
+```
