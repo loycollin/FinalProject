@@ -113,6 +113,16 @@ medals_age = medals %>% group_by(Age, Medal) %>% count() %>% mutate(Num_Medals =
 medals_age %>% ggplot(aes(x = Age, y = Num_Medals, colour = Medal)) + geom_point() + scale_color_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + ggtitle("Medal Count by Age")
 ```
 
+## Men and Women: Summer Olympics
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+olympics %>% filter(Season == "Summer") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Summer Olympics") + ylab("Count")
+```
+
+## Men and Women: Winter Olympics
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+olympics %>% filter(Season == "Winter") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Winter Olympics") + ylab("Count")
+```
+
 ## Medal Count
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + ggtitle("Medal Count by Age")
