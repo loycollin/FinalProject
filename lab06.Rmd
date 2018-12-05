@@ -158,7 +158,8 @@ medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + sc
         ## Trendline Graph
 medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time (Trendline)") + geom_smooth()
 ```
-    
+
+```{r}
     # Region Medals per Event
 event_medals = medals %>% group_by(region, Event, Sex, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
 
