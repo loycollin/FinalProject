@@ -15,8 +15,9 @@ output:
 </center>
 
 
-  - This dataset includes the names and characterics of olympic athletes from 1896-2016. 
-  - Source information about the dataset: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
+  - 1896 (Athens) - 2016 (Rio) 
+  - 15 Variables, 271116 Rows 
+  - Source: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
 
 
 ## Data Exploration: Age
@@ -46,6 +47,11 @@ olympics %>% ggplot(aes(x = Height)) + geom_bar(fill = "navy") + xlab("Height (c
 olympics %>% ggplot(aes(Weight)) + geom_histogram(fill = "navy") + xlab("Weight (kg)") + ylab("Count") + ggtitle("Mean Olympic Athlete Weight")
 ```
 
+## Average Age Over Time
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+olympics %>% group_by(Year) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(x = Year, y = mean_age)) + geom_line(color = "navy") + ylab("Mean Age") + ggtitle("Mean Athlete Age Over Time") 
+```
+
 ## Age vs Medals 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -57,7 +63,9 @@ medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(sta
 ## Men and Women: Summer Olympics
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 olympics %>% filter(Season == "Summer") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Summer Olympics") + ylab("Count")
+
 ```
+
 
 ## Medal Count: Top 5 Countries
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
