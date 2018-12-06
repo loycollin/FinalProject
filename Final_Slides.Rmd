@@ -49,7 +49,7 @@ olympics %>% ggplot(aes(Weight)) + geom_histogram(fill = "navy") + xlab("Weight 
 
 ## Average Age Over Time
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-olympics %>% group_by(Year) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(x = Year, y = mean_age)) + geom_line(color = "navy") + ylab("Mean Age") + ggtitle("Mean Athlete Age Over Time") 
+olympics %>% group_by(Year) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(x = Year, y = mean_age)) + geom_line(color = "navy") + ylab("Mean Age") + ggtitle("Mean Athlete Age Over Time") + geom_smooth()
 ```
 
 ## Age vs Medals 
