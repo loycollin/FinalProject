@@ -78,12 +78,12 @@ medals_country %>%  filter(region %in% c("USA", "Russia", "Germany", "UK", "Fran
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 medals_top5_year = medals %>% filter(Season == "Summer") %>% group_by(Year, region) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(Year)
 medals_top5_year = medals_top5_year %>% filter(region %in% c("USA", "Russia", "Germany", "UK", "France"))
-medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time") + geom_line()
+medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time: Summer Games") + geom_line()
 ```
 
 ## Top 5 Countries Over Time: Last 50 Years
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-medals_top5_year %>% filter(Year > 1966) %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time: 1966-2016") + geom_line() 
+medals_top5_year %>% filter(Year > 1966) %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time: 1966-2016") + geom_line() + geom_smooth() 
 ```
 
 ## Gold Medals
