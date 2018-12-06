@@ -21,7 +21,7 @@ output:
 
 ## Data Exploration: Age
 + Largest Group: 23 | Youngest: 10 | Oldest: 97
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning = FALSE}
 library(tidyverse)
 library(lubridate)
 library(gtable)
@@ -31,7 +31,7 @@ athletes = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/ma
 regions = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/noc_regions.csv")         #import region data
 olympics = left_join(athletes, regions, by = "NOC")                                                           #join athletes and region data by NOC 
 
-olympics %>% group_by(region) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(mean_age)) + geom_histogram(binwidth = 0.25, fill = "navy") + xlab("Age") + ylab("Count") + ggtitle("Mean Olympic Athlete Age")
+olympics %>% ggplot(aes(x = Age)) + geom_bar(fill = "navy") + xlab("Age") + ylab("Count") + ggtitle("Athlete Ages")
 ```
 
 ## Data Exploration: Height 
@@ -73,6 +73,10 @@ medals_top5_year = medals_top5_year %>% filter(region %in% c("USA", "Russia", "G
 medals_top5_year %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time") + geom_line()
 ```
 
+## Top 5 Countries Over Time: Last 50 Years
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+medals_top5_year %>% filter(Year > 1966) %>% ggplot(aes(x = Year, y = Num_Medals, colour = region)) + scale_color_brewer(palette="Set1", name = "Country") + ylab("Count") + ggtitle("Medals Over Time: 1966-2016") + geom_line() 
+```
 
 ## Gold Medals
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
