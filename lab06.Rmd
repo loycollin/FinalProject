@@ -7,6 +7,11 @@ output: html_document
 
 # Introduction
   * This dataset includes the names and characterics of olympic athletes from 1896-2016. Variables include personal statistics, (such as age, gender, height, and weight of each athlete), along with the sport, country, and medals received. There is another dataset that provides the National Olympic Committee code (NOC) and the corresponding geographical region. Source information about the dataset: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
+  
+  
+# Cleaning
+  * Throughout this project we used several different methods to clean and shape our data into the necessary formats.Joining the two tables our data set came with was the first step; We were able to use things like na.omit to get rid of blank results for certain graphs and were always filtering for specific results. The biggest ammount of reshaping we did was grouping our data into the necessary tables to get the results we needed. 
+
  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -406,3 +411,15 @@ map.medals %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill 
 year_gender = olympics %>% filter(Season == "Summer") %>% group_by(Year, Sex, Medal) %>% count()
 year_gender %>% filter(n < 1000, Medal != "NA") %>%  ggplot(aes(x = Year, y = n, color = Sex, shape = Medal)) + geom_point()
 ```
+
+# Follow Up
+  * The data set seemed to match with expectations that the more major countries end up with a larger quantity. 
+  * Most variables in the dataset seemed to have the correct variable types.
+  *We found for the athletes group in our first analysis that it did not include all the events for some reason and had to filter from a different group we created.
+  
+# Findings
+  * We found plausible relationships between countries and specific sports with visual aid. With more tiem this would have become a more interesting topic to look into for every country.Possibly geographic locations play a role?
+  *Over the years the average age of athletes has leveled off and the gender gap is continually closing in the amount of athletes competing.
+
+# Overall
+This data set was fairly simple to clean and reshape allowing us to work with it. We looked deeper into the top 5 countries and at a broad overview for the data set. It could be interesting to explore some of our finding and find possible causes, and with more time that would be our next goal. Somethings we could have done better was possibly pick out a recent decade or split the data into decades; as some events no longer exist, and many things can change over the years; from ages to gender ratios.
