@@ -1,0 +1,454 @@
+---
+title: "Final Project: The Olympics"
+author: "Michelle Cryder, Collin Loy"
+date: "December 14, 2018"
+output: html_document
+---
+
+# Introduction
+  * This dataset includes the names and characterics of olympic athletes from 1896-2016. Variables include personal statistics, (such as age, gender, height, and weight of each athlete), along with the sport, country, and medals received. There is another dataset that provides the National Olympic Committee code (NOC) and the corresponding geographical region. Source information about the dataset: https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results/home
+<center>  
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Olympic_rings_without_rims.svg/300px-Olympic_rings_without_rims.svg.png)  
+</center>  
+  
+  
+# Cleaning
+  * Throughout this project we used several different methods to clean and shape our data into the necessary formats.Joining the two tables our data set came with was the first step; We were able to use things like na.omit to get rid of blank results for certain graphs and were always filtering for specific results. The biggest ammount of reshaping we did was grouping our data into the necessary tables to get the results we needed. 
+
+ 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(gtable)
+library(grid)
+athletes = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/athlete_events.csv")     #import athlete data 
+regions = read_csv("https://raw.githubusercontent.com/loycollin/FinalProject/master/noc_regions.csv")         #import region data
+olympics = left_join(athletes, regions, by = "NOC")   #join athletes and region data by NOC 
+```
+
+# Data Exploration 
+
+* Insights
+
+  + Year: Data ranges from 1896 - 2016
+  + Average Weight of competitors is 70.7(kg) or 156.87(lb)
+  + Average Height of competitors is 175.3(cm) or 5'7"
+  + Age:
+      + Largest Age Group: 23
+      + Youngest Age: 10
+      + Oldest Age: 97
+  + Most Throughout the years won within the athletes 20's
+  + Data shows 196,594 Males and 74,522 Females in total
+      + No single year have more females been at the olympics then males.
+  + Top 5 Countries include
+      + USA with 1842 Medals total
+      + Russia with 1331 Medals Total
+      + Germany with 1243 Medals Total
+      + UK with 724 Medals Total
+      + France with 597 Medals Total
+  
+```{r}
+## Data Exploration:
+
+# List of variables and their formats.
+str(olympics)
+
+# 5 number summaries of each variable. 
+summary(olympics)
+
+## Data Exploration: Summarize Variables
+
+# Gender: Created a bar chart and filled by sex. There are over twice as many male athletes.
+olympics %>% group_by(region, Sex) %>% count() 
+olympics %>% ggplot(aes(x = Sex, fill = Sex)) + geom_bar() + ggtitle("Olympic Athletes by Gender") + ylab("Count")
+
+# Age: For age, we summarized the average age by region, then created a histogram by region. We also created a histogram of all athelete ages. The plot is right-skewed, with 23 being the most common age. 
+olympics %>% ggplot(aes(x = Age)) + geom_bar(fill = "navy")
+olympics %>% group_by(region) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) 
+olympics %>% group_by(region) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(mean_age)) + geom_histogram(binwidth = 0.25, fill = "navy") + xlab("Age") + ylab("Count") + ggtitle("Mean Olympic Athlete Age")
+
+
+# Height: For height, we summarized the average height by region, and created a histogram of all athlete heights. The plot shows a normal distribution, with the mean height at 175 cm. 
+olympics %>% ggplot(aes(x = Height)) + geom_bar(fill = "navy") + xlab("Height (cm)") + ylab("Count") + ggtitle("Mean Olympic Athlete Height")
+olympics %>% group_by(region) %>% summarise(mean_height = mean(Height, na.rm=TRUE))
+
+# Weight: We did the same summarization for weight as height. This plot is right skewed, with the average olympic weight at around 70 kg.
+olympics %>% ggplot(aes(Weight)) + geom_histogram(fill = "navy") + xlab("Weight (kg)") + ylab("Count") + ggtitle("Mean Olympic Athlete Weight")
+olympics %>% group_by(region) %>% summarise(mean_weight = mean(Weight, na.rm=TRUE))
+
+# Regions: Created a summary of the number of the athletes from each region
+olympics %>% group_by(region) %>% count() 
+names = olympics %>% group_by(region, Name) %>% select(Name, region) 
+
+# Medals: Looking at the number of medals by region.
+olympics %>% group_by(region, Medal) %>% count() %>% ggplot(aes(n)) + geom_histogram()
+```                                                                       
+
++ All of the visual summaries for each variable match expectations. The variability in average age over time was somewhat surprising. 
+                                                                                         
+                                                                                           
+# Expanding complexity
+
+```{r}
+###  Investigate two-way relationships 
+  
+# Scatterplots for two numeric variables: numeric vs numeric
+    
+  # Athlete Height vs Weight: a scatterplot of all athletes' weight vs height. The result was expected- as height increases, so does weight. 
+olympics %>% ggplot(aes(x = Height, y = Weight)) + geom_jitter(colour = "navy", size = 0.5) + ylab("Weight (kg)") + xlab("Height (cm)") + ggtitle("Athlete Height vs Weight")
+   
+ # Athlete Age vs Height: there doesn't appear to be much of a correlation between age and height.
+olympics %>% ggplot(aes(x = Age, y = Height)) + geom_jitter(colour = "navy", size = 0.1) + ylab("Height (cm)") + ggtitle("Athlete Age vs Height")
+
+  # Average Age Over Time: height increased with time, then took a dip in 1980, and has been trending upward in recent years. We added a smooth line to highlight the wave pattern.
+olympics %>% group_by(Year) %>% summarise(mean_age = mean(Age, na.rm=TRUE)) %>% ggplot(aes(x = Year, y = mean_age)) + geom_line(color = "navy") + ylab("Mean Age") + ggtitle("Mean Athlete Age Over Time") + geom_smooth()
+  
+  # Athlete Age vs Weight: similar to age vs height, there doesn't appear to be a strong correlation.
+olympics %>% ggplot(aes(x = Age, y = Weight)) + geom_jitter(colour = "navy", size = 0.1) + ylab("Weight (kg)") + ggtitle("Athlete Age vs Weight")
+
+# Side-by-side boxplots or facetted plots for numeric/categorical  
+
+  # Number of athletes, grouped by Sex, and facetted by Summer/Winter games. The total number of athletes has been trending upward. There are several dips in the male group, which may be caused by major world wars. There have never been more female athletes, but the gap between men vs women appears to be shrinking.
+olympics %>%  group_by(Year, Sex, Season) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Summer vs Winter Olympics") + ylab("Count") + facet_wrap(~Season)
+
+    # Female vs Male athletes by year for summer olympics, a closer look: 
+olympics %>% filter(Season == "Summer") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Summer Olympics") + ylab("Count")
+  
+  # Female vs Male athletes by year for winter olympics, a closer look:
+olympics %>% filter(Season == "Winter") %>%  group_by(Year, Sex) %>% count() %>% ggplot(aes(x = Year, y = n, colour = Sex)) + geom_point() + geom_line() + ggtitle("Number of Athletes: Winter Olympics") + ylab("Count")
+  
+  # Age vs Number of Medals: We filtered out only the athletes that receieved a medal, grouped them by age and medal, and then calculated the number of medals   received for each age. The graphs have a similar distribution to the age histogram, which is likely the effect from having more participants in the similar    # shape. 
+medals = olympics %>% filter(Medal == c("Gold", "Silver", "Bronze"))
+medals_age = medals %>% group_by(Age, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) 
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, colour = Medal)) + geom_point() + scale_color_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + ggtitle("Medal Count by Age")
+medals_age %>% ggplot(aes(x = Age, y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + ggtitle("Medal Count by Age")
+
+    # Number of medals per country:
+medals_country = medals %>% group_by(region, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
+```
+```{r echo = FALSE, fig.width=16, fig.height=15}
+    # All Regions: 
+na.omit(medals_country) %>% ggplot(aes(reorder(region, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + coord_flip() + scale_fill_manual(values=c("#bf6f40", "#ffbf00", "#bab2ab")) + ylab("Medal Count") + xlab("") + ggtitle("Medal Count by Country")
+```
+
+# A closer look at the top 5
+## USA: Athletes
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+
+athlete_M_count = olympics %>% group_by(region,Name, Sex, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals))
+# Gold
+US_athletesG = athlete_M_count %>% filter(region %in% c("USA"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+US_athletesG = ggplotGrob(US_athletesG)
+
+# Silver has a 16 way tie
+US_athletesS = athlete_M_count %>% filter(region %in% c("USA"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(16) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("USA Athlete Medal Count")
+US_athletesS = ggplotGrob(US_athletesS)
+
+# bronze has a 10 way tie
+US_athletesB = athlete_M_count %>% filter(region %in% c("USA"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+US_athletesB = ggplotGrob(US_athletesB)
+
+US_athletes = cbind(US_athletesG, US_athletesS, US_athletesB, size = "first")
+grid.draw(US_athletes)
+grid.newpage()
+
+```
+
+## USA: Mens Events
+- <font size="4">Michael Fred Phelps II with 28 Medals Total</font>
+     - <font size="3">Swimming 4 x 200 metres Freestyle Relay: 4 Gold Medals</font>
+     - <font size="3">Swimming 4 x 100 metres Freestyle Relay: 1 Gold Medal</font>
+     - <font size="3">Swimming 4 x 100 metres Medley Relay: 4 Gold Medal</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+# Region Medals per Event
+event_medals = olympics %>% group_by(region, Event, Sex, Medal) %>% count() %>% mutate(Num_Medals = n) %>% select(-n) %>% arrange(desc(Num_Medals), Medal)
+US_MensG = event_medals %>% filter(region %in% c("USA"), Medal == "Gold", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+US_MensG = ggplotGrob(US_MensG)
+
+US_MensS = event_medals %>% filter(region %in% c("USA"), Medal == "Silver", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("USA Mens") + scale_fill_manual(values=c("#bab2ab"))
+US_MensS = ggplotGrob(US_MensS)
+
+US_MensB = event_medals %>% filter(region %in% c("USA"), Medal == "Bronze", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+US_MensB = ggplotGrob(US_MensB) 
+
+US_Mens = cbind(US_MensG, US_MensS, US_MensB, size = "first" )
+grid.draw(US_Mens)
+grid.newpage()
+```
+
+## USA: Womens Events
+- <font size="4">Jennifer Elisabeth "Jenny" Thompson with 12 Medals Total</font>
+     - <font size="3">Swimming 4 x 100 metres Freestyle Relay: 3 Gold</font>
+     - <font size="3">Swimming 4 x 100 metres Medley Relay: 3 Gold</font>
+     - <font size="3">Swimming Women's 4 x 200 metres Freestyle Relay: 2 Gold</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}    
+US_WomensG = event_medals %>% filter(region %in% c("USA"), Medal == "Gold", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+US_WomensG = ggplotGrob(US_WomensG)
+
+US_WomensS = event_medals %>% filter(region %in% c("USA"), Medal == "Silver", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("USA Womens") + scale_fill_manual(values=c("#bab2ab"))
+US_WomensS = ggplotGrob(US_WomensS)
+
+US_WomensB = event_medals %>% filter(region %in% c("USA"), Medal == "Bronze", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+US_WomensB = ggplotGrob(US_WomensB)
+
+US_Womens = cbind(US_WomensG, US_WomensS, US_WomensB, size = "first" )
+grid.draw(US_Womens)
+grid.newpage()
+
+```
+
+## Russia: Athletes
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+RU_athletesG = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+RU_athletesG = ggplotGrob(RU_athletesG)
+
+RU_athletesS = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("Russia Athlete Medal Count")
+RU_athletesS = ggplotGrob(RU_athletesS)
+
+RU_athletesB = athlete_M_count %>% filter(region %in% c("Russia"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+RU_athletesB = ggplotGrob(RU_athletesB)
+
+
+RU_athletes = cbind(RU_athletesG, RU_athletesS, RU_athletesB, size = "first")
+grid.draw(RU_athletes)
+grid.newpage()
+```
+
+## Russia: Mens Events
+- <font size="4">Nikolay Yefimovich Andrianov with 15 Medals Total</font>
+     - <font size="3">Gymnastics Team All-Around: 2 Gold</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+# Region Medals per Event
+RU_MensG = event_medals %>% filter(region %in% c("Russia"), Medal == "Gold", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+RU_MensG = ggplotGrob(RU_MensG)
+
+RU_MensS = event_medals %>% filter(region %in% c("Russia"), Medal == "Silver", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("Russia Mens") + scale_fill_manual(values=c("#bab2ab"))
+RU_MensS = ggplotGrob(RU_MensS)
+
+RU_MensB = event_medals %>% filter(region %in% c("Russia"), Medal == "Bronze", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+RU_MensB = ggplotGrob(RU_MensB)
+
+RU_Mens = cbind(RU_MensG, RU_MensS, RU_MensB, size = "first" )
+grid.draw(RU_Mens)
+grid.newpage()
+```
+
+## Russia: Womens Events
+- <font size="4">Larysa Semenivna Latynina (Diriy-) with 18 Medals Total</font>
+     - <font size="3">Gymnastics Team All-Around: 3 Gold</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}    
+RU_WomensG = event_medals %>% filter(region %in% c("Russia"), Medal == "Gold", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+RU_WomensG = ggplotGrob(RU_WomensG)
+
+RU_WomensS = event_medals %>% filter(region %in% c("Russia"), Medal == "Silver", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("Russia Womens") + scale_fill_manual(values=c("#bab2ab"))
+RU_WomensS = ggplotGrob(RU_WomensS)
+
+RU_WomensB = event_medals %>% filter(region %in% c("Russia"), Medal == "Bronze", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+RU_WomensB = ggplotGrob(RU_WomensB)
+
+RU_Womens = cbind(RU_WomensG, RU_WomensS, RU_WomensB, size = "first" )
+grid.draw(RU_Womens)
+grid.newpage()
+
+```
+
+## Germany: Athletes
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+GE_athletesG = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+GE_athletesG = ggplotGrob(GE_athletesG)
+
+GE_athletesS = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("Germany Athlete Medal Count")
+GE_athletesS = ggplotGrob(GE_athletesS)
+
+GE_athletesB = athlete_M_count %>% filter(region %in% c("Germany"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+GE_athletesB = ggplotGrob(GE_athletesB)
+
+
+GE_athletes = cbind(GE_athletesG, GE_athletesS, GE_athletesB, size = "first")
+grid.draw(GE_athletes)
+grid.newpage()
+```
+
+## Germany: Mens Events
+- <font size="4">Reiner Klimke with 8 Medals Total</font>
+     - <font size="3">Equestrianism Mixed Jumping, Team: 5 Gold Medals</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+GE_MensG = event_medals %>% filter(region %in% c("Germany"), Medal == "Gold", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+GE_MensG = ggplotGrob(GE_MensG)
+
+GE_MensS = event_medals %>% filter(region %in% c("Germany"), Medal == "Silver", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle("Germany Mens") + scale_fill_manual(values=c("#bab2ab"))
+GE_MensS = ggplotGrob(GE_MensS)
+
+GE_MensB = event_medals %>% filter(region %in% c("Germany"), Medal == "Bronze", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+GE_MensB = ggplotGrob(GE_MensB)
+
+GE_Mens = cbind(GE_MensG, GE_MensS, GE_MensB, size = "first" )
+grid.draw(GE_Mens)
+grid.newpage()
+```
+
+## Germany: Womens Events
+- <font size="4">Birgit Fischer-Schmidt with 12 Medals Total</font>
+     - <font size="3">Canoeing Kayak Doubles, 500 metres: 2 Gold</font>
+     - <font size="3">Canoeing Kayak Fours, 500 metre: 3 Gold</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}    
+GE_WomensG = event_medals %>% filter(region %in% c("Germany"), Medal == "Gold", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+GE_WomensG = ggplotGrob(GE_WomensG)
+
+GE_WomensS = event_medals %>% filter(region %in% c("Germany"), Medal == "Silver", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("Germany Womens") + scale_fill_manual(values=c("#bab2ab"))
+GE_WomensS = ggplotGrob(GE_WomensS)
+
+GE_WomensB = event_medals %>% filter(region %in% c("Germany"), Medal == "Bronze", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+GE_WomensB = ggplotGrob(GE_WomensB)
+
+GE_Womens = cbind(GE_WomensG, GE_WomensS, GE_WomensB, size = "first" )
+grid.draw(GE_Womens)
+grid.newpage()
+```
+
+## UK: Athletes
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+UK_athletesG = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+UK_athletesG = ggplotGrob(UK_athletesG)
+
+UK_athletesS = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("UK Athlete Medal Count")
+UK_athletesS = ggplotGrob(UK_athletesS)
+
+UK_athletesB = athlete_M_count %>% filter(region %in% c("UK"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+UK_athletesB = ggplotGrob(UK_athletesB)
+
+
+UK_athletes = cbind(UK_athletesG, UK_athletesS, UK_athletesB, size = "first")
+grid.draw(UK_athletes)
+grid.newpage()
+```
+
+## UK: Mens Events
+- <font size="4">Christopher Andrew "Chris" Hoy with 7 Medals Total</font>
+- <font size="4">Jason Francis Kenny with a total of 7 Medals</font>
+  - <font size="4">Both Cyclists</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+UK_MensG = event_medals %>% filter(region %in% c("UK"), Medal == "Gold", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+UK_MensG = ggplotGrob(UK_MensG)
+
+UK_MensS = event_medals %>% filter(region %in% c("UK"), Medal == "Silver", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle("UK Mens") + scale_fill_manual(values=c("#bab2ab"))
+UK_MensS = ggplotGrob(UK_MensS)
+
+UK_MensB = event_medals %>% filter(region %in% c("UK"), Medal == "Bronze", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+UK_MensB = ggplotGrob(UK_MensB)
+
+UK_Mens = cbind(UK_MensG, UK_MensS, UK_MensB, size = "first" )
+grid.draw(UK_Mens)
+grid.newpage()
+```
+
+## UK: Womens Events
+- <font size="4">Laura Rebecca Trott (-Kenny) with 4 Medals Total</font>
+     - <font size="3">Cycling Women's Team Pursuit: 2 Gold</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}    
+UK_WomensG = event_medals %>% filter(region %in% c("UK"), Medal == "Gold", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+UK_WomensG = ggplotGrob(UK_WomensG)
+
+UK_WomensS = event_medals %>% filter(region %in% c("UK"), Medal == "Silver", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("UK Womens") + scale_fill_manual(values=c("#bab2ab"))
+UK_WomensS = ggplotGrob(UK_WomensS)
+
+UK_WomensB = event_medals %>% filter(region %in% c("UK"), Medal == "Bronze", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+UK_WomensB = ggplotGrob(UK_WomensB)
+
+UK_Womens = cbind(UK_WomensG, UK_WomensS, UK_WomensB, size = "first" )
+grid.draw(UK_Womens)
+grid.newpage()
+```
+
+## France: Athletes
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+FR_athletesG = athlete_M_count %>% filter(region %in% c("France"), Medal == "Gold") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ")
+FR_athletesG = ggplotGrob(FR_athletesG)
+
+FR_athletesS = athlete_M_count %>% filter(region %in% c("France"), Medal == "Silver") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle("France Athlete Medal Count") + scale_fill_manual(values=c("#00BFC4"))
+FR_athletesS = ggplotGrob(FR_athletesS)
+
+FR_athletesB = athlete_M_count %>% filter(region %in% c("France"), Medal == "Bronze") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Name, Num_Medals), y = Num_Medals, fill = Sex )) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position="none") + ggtitle(" ") + scale_fill_manual(values=c("#00BFC4"))
+FR_athletesB = ggplotGrob(FR_athletesB)
+
+
+FR_athletes = cbind(FR_athletesG, FR_athletesS, FR_athletesB, size = "first")
+grid.draw(FR_athletes)
+grid.newpage()
+
+```
+
+## France: Mens Events
+- <font size="4">three way tie with with 6 Medals Total</font>
+     - <font size="3">Christian Marie Auguste d'Oriola and Lucien Alphonse Paul Gaudin
+      - Both winning gold in the the different fencing events listed
+</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}
+FR_MensG = event_medals %>% filter(region %in% c("France"), Medal == "Gold", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+FR_MensG = ggplotGrob(FR_MensG)
+
+FR_MensS = event_medals %>% filter(region %in% c("France"), Medal == "Silver", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle("France Mens") + scale_fill_manual(values=c("#bab2ab"))
+FR_MensS = ggplotGrob(FR_MensS)
+
+FR_MensB = event_medals %>% filter(region %in% c("France"), Medal == "Bronze", Sex == "M") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "name") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+FR_MensB = ggplotGrob(FR_MensB)
+
+FR_Mens = cbind(FR_MensG, FR_MensS, FR_MensB, size = "first" )
+grid.draw(FR_Mens)
+grid.newpage()
+```
+
+## France: Womens Events
+- <font size="4">Marie-Jos Juliana Prec (Hontas-) and Flicia Michele Sylviane Ballanger (-Vetu) with 3 Medals Total</font>
+     - <font size="3">Filicia - Cycling Womens Sprint: 2 Gold</font>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align="center"}    
+FR_WomensG = event_medals %>% filter(region %in% c("France"), Medal == "Gold", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Gold Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#ffbf00"))
+FR_WomensG = ggplotGrob(FR_WomensG)
+
+FR_WomensS = event_medals %>% filter(region %in% c("France"), Medal == "Silver", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Silver Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle("France Womens") + scale_fill_manual(values=c("#bab2ab"))
+FR_WomensS = ggplotGrob(FR_WomensS)
+
+FR_WomensB = event_medals %>% filter(region %in% c("France"), Medal == "Bronze", Sex == "F") %>% arrange(desc(Num_Medals)) %>% head(10) %>% ggplot(aes(reorder(Event, Num_Medals), y = Num_Medals, fill = Medal)) + geom_bar(stat = "identity") + ylab("Bronze Medals") + xlab(" ") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") + ggtitle(" ") + scale_fill_manual(values=c("#bf6f40"))
+FR_WomensB = ggplotGrob(FR_WomensB)
+
+FR_Womens = cbind(FR_WomensG, FR_WomensS, FR_WomensB, size = "first" )
+grid.draw(FR_Womens)
+grid.newpage()
+```
+
+* These maps will give an overview of Medal dispursement throughout the different countries.
+```{r}
+library(maps)
+world <- map_data("world")
+  # World Map of Gold Medals
+medals.gold = medals_country %>% filter(Medal %in% "Gold")
+map.gold = medals.gold %>% left_join(world, by = "region")
+map.gold %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + scale_fill_gradient(low = "#f9f383", high = "#e1d607", name = "Medal Count") + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Gold Medals")
+  # World Map of Silver Medals
+medals.silver = medals_country %>% filter(Medal %in% "Silver")
+map.silver = medals.silver %>% left_join(world, by = "region")
+map.silver %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + scale_fill_gradient(low = "#e6e6e6", high = "#7a7a7a", name = "Medal Count") + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Silver Medals")
+# World Map of Bronze Medals
+medals.bronze = medals_country %>% filter(Medal %in% "Bronze")
+map.bronze = medals.bronze %>% left_join(world, by = "region")
+map.bronze %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + scale_fill_gradient(low = "#e3af78", high = "#90591d", name = "Medal Count") + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Bronze Medals")
+```
+
+```{r, fig.height=5.5, fig.width=20}
+# Facet maps of gold, silver, and bronze medals in the world:
+map.medals = medals_country %>% left_join(world, by = "region")
+map.medals %>% ggplot() + geom_polygon(aes(x = long, y = lat, group=group, fill = Num_Medals)) + geom_path(data = world, aes(x = long, y = lat, group = group), color = "dark grey") + ggtitle("Olympic Medals") + facet_wrap(~Medal) + scale_fill_gradient(low = "#66a8ff", high = "#02002e", name = "Medal Count") 
+```
+
+# Follow Up
+  * The data set seemed to match with expectations that the more major countries end up with a larger quantity. 
+  * Most variables in the dataset seemed to have the correct variable types.
+  *We found for the athletes group in our first analysis that it did not include all the events for some reason and had to filter from a different group we created.
+  
+# Findings
+  * We found plausible relationships between countries and specific sports with visual aid. With more tiem this would have become a more interesting topic to look into for every country.Possibly geographic locations play a role?
+  *Over the years the average age of athletes has leveled off and the gender gap is continually closing in the amount of athletes competing.
+
+# Overall
+This data set was fairly simple to clean and reshape allowing us to work with it. We looked deeper into the top 5 countries and at a broad overview for the data set. It could be interesting to explore some of our finding and find possible causes, and with more time that would be our next goal. Somethings we could have done better was possibly pick out a recent decade or split the data into decades; as some events no longer exist, and many things can change over the years; from ages to gender ratios.
